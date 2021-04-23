@@ -18,16 +18,16 @@ public class ej1 {
 		
 		System.out.println("el arreglo esta ordenado?");
 		
-		System.out.println(isSorted(arr,0,0));
+		System.out.println(isSorted(arr,0));
 		
 		//ARREGLO PASA A ESTAR DESORDENADO
-		arr[2] = -5;
+		arr[4] = -5;
 		
 		System.out.println("=========================");
 		imprimir(arr);
 		System.out.println("Ahora, el arreglo esta ordenado?");
 		
-		System.out.println(isSorted(arr,0,0));
+		System.out.println(isSorted(arr,0));
 		
 		
 	}
@@ -41,17 +41,17 @@ public class ej1 {
 	
 	//Ejercicio 1.
 	//Implemente un algoritmo recursivo que determine si un arreglo de tamaño N está ordenado.
-	//?? COMPLEJIDAD?? O(log n)?
-	public static int isSorted (int[] arr, int izq, int der) {
-		int aux = -1;
+	//O(n) en el peor de los casos voy hasta el final, caso del arreglo ordenado
+	public static Boolean isSorted (int[] arr, int index) {
+		boolean aux = false;
 		
-		if (der < arr.length ) {
-			if (arr[izq] <= arr[der])
-				return isSorted(arr, der, (der+1));
+		if (index+1 < arr.length ) {
+			if (arr[index] <= arr[index+1])
+				return isSorted(arr, index+1);
 		}
 		
 		else 
-			aux = 1;
+			aux = true;
 		
 		return aux;
 	}

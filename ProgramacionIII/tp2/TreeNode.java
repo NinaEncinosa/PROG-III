@@ -15,7 +15,7 @@ public class TreeNode {
 	public TreeNode getLeft() {
 		return left;
 	}
-
+	
 	public void setLeft(TreeNode left) {
 		this.left = left;
 	}
@@ -30,6 +30,14 @@ public class TreeNode {
 
 	public int getValue() {
 		return value;
+	}
+	
+	public void setValue(int value) {
+		this.value = value;
+	}
+	
+	public boolean isLeaf() {
+		return ((this.getLeft() == null) && (this.getRight() == null));
 	}
 
 
