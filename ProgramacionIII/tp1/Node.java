@@ -1,20 +1,22 @@
 package ProgramacionIII.tp1;
 
-public class Node {
+import java.util.Iterator;
 
-	private Object info;
+public class Node implements Iterable<Integer> {
+
+	private Integer info;
 	private Node next;
 
 	public Node() {
-		this.info = null;
+		this.info = 0;
 		this.next = null;
 	}
-	
-	public Node(Object o, Node n) {
-		this.setInfo(o);
+
+	public Node(Integer i, Node n) {
+		this.setInfo(i);
 		this.setNext(n);
 	}
-	
+
 	public Node getNext() {
 		return next;
 	}
@@ -23,12 +25,18 @@ public class Node {
 		this.next = next;
 	}
 
-	public Object getInfo() {
+	public Integer getInfo() {
 		return info;
 	}
 
-	public void setInfo(Object info) {
+	public void setInfo(Integer info) {
 		this.info = info;
+	}
+
+	@Override
+	public Iterator<Integer> iterator() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }
