@@ -205,6 +205,7 @@ public class TreeWithNode {
 		return null;
 	}
 	
+	//O(h) siendo h la rama mas larga
 	public boolean delete (int elem) {
    		if (isEmpty())
 			return false;
@@ -212,17 +213,23 @@ public class TreeWithNode {
 			return delete(root,root,false,elem);
 	}
 
+	//O(h) siendo h la rama mas larga
+	//En el peor de los casos el nodo a borrar es el root de un arbol con 2 hijos en el que su NMI es la rama mas larga
 	private boolean delete (TreeNode parentNode, TreeNode node, boolean isRightBranch, int elem) {
 		boolean estaba = false;
 		
+		//O(h) siendo h la rama mas larga
 		if(node != null) {
+			//O(h) siendo h la rama mas larga
 			if (node.getValue() == elem) {
 				
 				//CASO 1: El nodo a borrar es hoja
+				//O(1)
 				if(node.isLeaf()) 
 					deleteLeaf(parentNode,elem);
 				
 				//CASO 2: El nodo a borrar tiene solo 1 rama hija
+				//O(1)
 				else if((node.getLeft() == null) || (node.getRight() == null)) {
 						if (isRightBranch)
 							parentNode.setRight(getNodeOnlyBranchDown(node));
@@ -231,13 +238,18 @@ public class TreeWithNode {
 					}
 				
 				//CASO 3: El nodo a borrar tiene 2 ramas hijas
+				//O(h)
 				else {
+					//O(h) siendo h la rama mas larga
+					//En el peor de los casos, quiero borrar el nodo root del arbol, el cual posee 2 hijos y su NMI es la rama mas larga
 					int nmi = NMI(node.getRight());
 					delete(nmi);
 					
+					//O(1)
 					if(isRightBranch) 
 						parentNode.getRight().setValue(nmi);
 					
+					//O(1)
 					else
 						parentNode.getLeft().setValue(nmi);	
 						
@@ -259,6 +271,7 @@ public class TreeWithNode {
 		return estaba;
 	}
 	
+	//O(1)
 	private void deleteLeaf (TreeNode node, int elem) {
 		if ((node.getLeft() != null) && (node.getLeft().getValue() == elem)){
 			node.setLeft(null);
@@ -267,12 +280,15 @@ public class TreeWithNode {
 			node.setRight(null);	
 	}
 	
+	//O(1)
 	private TreeNode getNodeOnlyBranchDown (TreeNode node) {
 		if(node.getLeft() != null) 
 			return node.getLeft();
 		return node.getRight();
 	}
 
+	//O(h) siendo h la rama mas larga 
+	//En el peor de los casos el NMI es la rama mas larga del arbol
 	private int NMI(TreeNode node) {	
         if(node.getLeft() != null) {	
             return NMI(node.getLeft());
