@@ -11,9 +11,8 @@ public class TreeWithNode {
 		root = null;
 	}
 	
-	//El metodo add tiene complejidad O(h) por lo que este metodo sera tambien O(h)
-	//En el peor de los casos el arreglo pasado como parametro esta ordenado y el arbol resultante termina siendo un arbol enredadera
-	//O(h) siendo h la altura del arbol
+	//el add tiene compejidad O(h) siendo h la altura del arbol, al invocar al add con un for, la complejidad pasa a ser
+	//O(n*h) donde n es el tamanio del arreglo pasado por parametro y h es la altura del arbol
 	public TreeWithNode(int[] valoresIniciales) {
 		for (int i = 0; i < valoresIniciales.length; i++) {
 			this.add(valoresIniciales[i]);
@@ -317,7 +316,7 @@ public class TreeWithNode {
 			return false;
    		//O(h) siendo h la altura del arbol
 		else
-			return delete(root,root,elem);
+			return delete(null,root,elem);
 	}
 
 	//En el peor de los casos el nodo a borrar es el root de un arbol con 2 hijos en el que su NMI es la rama mas larga
@@ -334,15 +333,28 @@ public class TreeWithNode {
 				//CASO 1: El nodo a borrar es hoja
 				//Al nodo padre le borro segun corresponda, la rama izquierda o la derecha
 				//O(1)
-				if(node.isLeaf()) 
-					deleteLeaf(parentNode,elem);
+				if(node.isLeaf()) {
+					//caso arbol con solo un nodo, el arbol pasa a ser null
+					if (parentNode == null) {
+						this.root = null;
+					}
+					else 
+						deleteLeaf(parentNode,elem);
+				}
 				
 				//CASO 2: El nodo a borrar tiene SOLO 1 rama hija
 				//O(1)
 				else if((node.getLeft() == null) || (node.getRight() == null)) {
+					//caso borrar el PRIMER nodo de un arbol con solo 1 rama hija
+					if (parentNode == null) {
+						if (node.getLeft() != null)
+							this.root = node.getLeft();
+						else 
+							this.root = node.getRight();
+					}
 					//Pregunto si esa unica rama hija es derecha o izquierda
 					//Reemplazo el nodo a borrar por su nodo hijo der/izq segun corresponda
-					if(node.getValue() > parentNode.getValue()) 
+					else if(node.getValue() > parentNode.getValue()) 
 							parentNode.setRight(getNodeFromOnlyBranchDown(node));
 						else 
 							parentNode.setLeft(getNodeFromOnlyBranchDown(node));
@@ -355,7 +367,10 @@ public class TreeWithNode {
 				else {
 					int nmi = NMI(node.getRight());
 					delete(nmi);
-					node.setValue(nmi);		
+					if (parentNode == null)
+						this.root.setValue(nmi);			
+					else 
+						node.setValue(nmi);	
 				}
 				
 				//Si o si en alguno de los 3 casos anteriores contemple al nodo encontrado para borrar, por lo que el metodo ahora retornara true
@@ -408,6 +423,4 @@ public class TreeWithNode {
         //Condicion de corte, no hay mas nodos izquierdos hijos
         return node.getValue();
     }
-    
-	
 }
