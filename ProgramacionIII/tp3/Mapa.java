@@ -1,0 +1,118 @@
+package ProgramacionIII.tp3;
+
+import java.util.HashMap;
+import java.util.Iterator;
+
+public class Mapa {
+
+	private Grafo<Integer> grafo;
+	private HashMap<Integer,Ciudad> ciudades;
+	private HashMap<Integer,String> colores;
+	
+	public Mapa() {
+		this.grafo = new GrafoNoDirigido<Integer>();
+		this.ciudades = new HashMap<Integer,Ciudad>();
+		this.colores = new HashMap<Integer,String>();
+	}
+	
+	public void agregarCiudad(Ciudad ciudad) {
+		this.ciudades.put(ciudad.getId(), ciudad);
+		this.grafo.agregarVertice(ciudad.getId());
+	}
+	
+	public void eliminarCiudad(Ciudad ciudad) {
+		this.ciudades.remove(ciudad.getId());
+		this.grafo.borrarVertice(ciudad.getId());
+		this.colores.remove(ciudad.getId());
+	}
+	
+	public void agregarCamino(Ciudad ciudadOrigen, Ciudad ciudadDestino, int kilometros) {
+		this.grafo.agregarArco(ciudadOrigen.getId(), ciudadDestino.getId(), kilometros);
+	}
+	
+	public void eliminarCamino(Ciudad ciudadOrigen, Ciudad ciudadDestino) {
+		this.grafo.borrarArco(ciudadOrigen.getId(), ciudadDestino.getId());
+	}
+	
+	public String getNombreCiudad (int id) {
+		if(this.ciudades.containsKey(id)) {
+			return this.ciudades.get(id).getNombre();
+		}
+		else 
+			return null;
+		
+	}
+
+	//Encontrar el camino mas corto en distancia (km) entre 2 ciudades, pasando como maximo por una unica balanza (teniendo en cuenta la ciudad origen y la ciudad destino)
+	public Camino encontrarCamino_dfs (Ciudad origen, Ciudad destino) {
+		
+		Iterator<Integer> it = this.grafo.obtenerVertices();
+		while (it.hasNext()) {
+			int verticeId = it.next();
+			colores.put(verticeId, "blanco");
+		}
+		
+		Camino encontrarCamino = encontrarCamino_dfs_visit(origen.getId(),destino.getId(),0,0);
+		
+		//cuando no encuentro un camino viable setteo los km en 0
+		if (encontrarCamino.getListCiudades().size() == 0) {
+			encontrarCamino.setTotalDeKm(0);
+		}
+
+		return encontrarCamino;
+		
+	}
+	
+
+	private Camino encontrarCamino_dfs_visit(int vertice, int verticeObjetivo , int cantBalanzas, int kmRecorridos) {
+		
+		Camino solucion = new Camino();
+		
+		if (this.ciudades.get(vertice).poseeBalanza()) {
+			cantBalanzas++;
+		}
+		
+		//condicion de corte, no entra al else y retorna el camino con los km pasados por parametro
+		if((cantBalanzas < 2) && (vertice == verticeObjetivo)) {
+			solucion.getListCiudades().add(vertice);
+			solucion.setTotalDeKm(kmRecorridos);
+		}
+		
+		else {
+			colores.put(vertice, "amarillo");
+			
+			Iterator<Integer> it = this.grafo.obtenerAdyacentes(vertice);
+			
+			//recorro todos mis adyacentes 
+			while(it.hasNext() && (cantBalanzas < 2)) {
+				int adyacente = it.next();
+				
+				if (colores.get(adyacente).equals("blanco")) {
+
+					//sumo km desde donde estoy hasta adyacente
+					kmRecorridos += grafo.obtenerArco(vertice, adyacente).getEtiqueta(); 
+					
+					//busco camino hasta destino
+					Camino subCaminosDesdeAdy = encontrarCamino_dfs_visit(adyacente,verticeObjetivo,cantBalanzas,kmRecorridos);
+					
+					//reseteo los km para que el proximo adyacente del while no tenga los km mios
+					kmRecorridos -= grafo.obtenerArco(vertice, adyacente).getEtiqueta(); 
+					
+					//me agrego al inicio del posible camino
+					subCaminosDesdeAdy.getListCiudades().add(0,vertice);
+
+					//me quedo con el camino mas corto hasta destino de mis adyacentes  
+					if((subCaminosDesdeAdy.getListCiudades().contains(verticeObjetivo)) && (subCaminosDesdeAdy.getTotalDeKm() < solucion.getTotalDeKm())) {
+						solucion = subCaminosDesdeAdy;
+					}
+					
+				}
+			}
+			colores.put(vertice, "blanco");
+		}
+		
+		//devuelvo desde una posicion x el camino mas optimo hasta destino
+		return solucion;
+	}
+		
+}
