@@ -2,6 +2,8 @@ package ProgramacionIII.tp3;
 
 import java.util.Iterator;
 
+//Complejidades resueltas en clase GrafoDirigido<T>
+
 public interface Grafo<T> {
 	
 	// Agrega un vertice 

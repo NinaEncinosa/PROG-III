@@ -1,5 +1,7 @@
 package ProgramacionIII.tp3;
 
+//Complejidades explicitas en clase GrafoDirido<T>
+
 public class GrafoNoDirigido<T> extends GrafoDirigido<T> {
 
 	

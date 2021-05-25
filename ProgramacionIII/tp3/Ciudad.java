@@ -9,6 +9,11 @@ public class Ciudad{
 	private boolean poseeRadares;
 	private int cantTalleresMecanicos;
 
+	public Ciudad(int id, String nombre) {
+		this.id = id;
+		this.nombre = nombre;
+	}
+	
 	public Ciudad(int id, String nombre, boolean balanza) {
 		this.id = id;
 		this.nombre = nombre;
