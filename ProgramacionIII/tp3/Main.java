@@ -41,6 +41,7 @@ public class Main {
 		
 		imprimirEncontrarCamino(mapa,marDelPlata,pehuajo);
 		
+		
 		mapa.eliminarCiudad(ayacucho);
 		
 		mapa.eliminarCamino(tandil,rauch);

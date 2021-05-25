@@ -43,7 +43,7 @@ public class Mapa {
 		
 	}
 
-	//Encontrar el camino mas corto en distancia (km) entre 2 ciudades, pasando como maximo por una unica balanza (teniendo en cuenta las balanzas de ciudad origen y ciudad destino)
+	//Encontrar el camino mas corto en distancia (km) entre 2 ciudades, ATRAVESANDO como maximo una unica balanza (no tengo en cuenta las balanzas de ciudad origen y ciudad destino)
 	public Camino encontrarCamino_dfs (Ciudad origen, Ciudad destino) {
 		
 		Iterator<Integer> it = this.grafo.obtenerVertices();
@@ -63,23 +63,23 @@ public class Mapa {
 		
 	}
 	
-	//Encontrar el camino mas corto en distancia (km) entre 2 ciudades, pasando como maximo por una unica balanza (teniendo en cuenta las balanzas de ciudad origen y ciudad destino)
+	//Encontrar el camino mas corto en distancia (km) entre 2 ciudades, ATRAVESANDO como maximo una unica balanza (no tengo en cuenta las balanzas de ciudad origen y ciudad destino)
 	private Camino encontrarCamino_dfs_visit(int vertice, int verticeObjetivo , int cantBalanzas, int kmRecorridos) {
 		
 		Camino solucion = new Camino();
 		
-		//Aca tengo en cuenta la balanza de la ciudad origen
-		//(en caso de no querer tener en cuenta esa balanza deberia agregar esta condicion al if: )
-		//if ((kmRecorridos != 0) && (this.ciudades.get(vertice).poseeBalanza())){
-		if (this.ciudades.get(vertice).poseeBalanza()) {
+		//Aca no tengo en cuenta la balanza de la ciudad origen
+		//(en caso de querer tener en cuenta esa balanza deberia quitar la primer condicion del if: )
+		//if (this.ciudades.get(vertice).poseeBalanza()) {
+		if ((kmRecorridos != 0) && (this.ciudades.get(vertice).poseeBalanza())){
 			cantBalanzas++;
 		}
 		
 		//Condicion de corte, no entra al else y retorna el camino con los km pasados por parametro
-		//Aca tengo en cuenta la balanza de la ciudad destino
-		//(en caso de no querer tener en cuenta esa balanza deberia quitar la primer condicion del if: )
-		//if(vertice == verticeObjetivo) {
-		if((cantBalanzas < 2) && (vertice == verticeObjetivo)) {
+		//Aca no tengo en cuenta la balanza de la ciudad destino
+		//(en caso de querer tener en cuenta esa balanza deberia agregar esta condicion al if: )
+		//if((cantBalanzas < 2) && (vertice == verticeObjetivo)) {
+		if(vertice == verticeObjetivo) {
 			solucion.getListCiudades().add(vertice);
 			solucion.setTotalDeKm(kmRecorridos);
 		}
