@@ -14,10 +14,12 @@ public class Ciudad{
 		this.nombre = nombre;
 	}
 	
-	public Ciudad(int id, String nombre, boolean balanza) {
+	public Ciudad(int id, String nombre,int cantEstacionesServicio, boolean poseeBalanza, boolean poseeRadares, int cantTalleresMecanicos) {
 		this.id = id;
 		this.nombre = nombre;
-		this.poseeBalanza = balanza;
+		this.poseeBalanza = poseeBalanza;
+		this.poseeRadares = poseeRadares;
+		this.cantTalleresMecanicos = cantTalleresMecanicos;
 	}
 
 	public int getId() {

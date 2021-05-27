@@ -1,19 +1,24 @@
 package ProgramacionIII.tp3;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
 
 public class GrafoDirigido<T> implements Grafo<T> {
 	
 	//HashMap <key,value> donde key = vertice y value = lista de arcos donde el vertice origen
 	//sera = al valor del key en esa posicion y el vertice destino sera un nodo adyacente
 	private HashMap <Integer, ArrayList<Arco<T>>> vertices; 
+	private int cantArcos;
 
 	
 	//O(1)
 	public GrafoDirigido() {
 		vertices = new HashMap<Integer, ArrayList<Arco<T>>>();
+		cantArcos = 0;
 	}
 	
 	
@@ -25,22 +30,53 @@ public class GrafoDirigido<T> implements Grafo<T> {
 		}
 	}
 
-
-//?	//O(v * a^2) v = cantidad de vertices, a = promedio de los tamanios de las listas de adyacentes
+	//O(v*a) v = cantidad de vertices y a = cantidad de arcos promedio de cada vertice
 	@Override
 	public void borrarVertice(int verticeId) {
 		if (contieneVertice(verticeId)) {	//O(1)
+			int cantAdy = vertices.get(verticeId).size();
 			vertices.remove(verticeId);		//O(1)
+			cantArcos -= cantAdy;
+			
+			
+			//se podria mejorar para no tener que recorrer el total de arcos 2 veces
 			Iterator<Arco<T>> arcos = obtenerArcos(); // //O(v*a), v = cantidad de vertices, a = promedio de los tamanios de las listas de adyacentes a cada vertice
 			
-			while (arcos.hasNext()) {	//O(a^2) ???, a = cantidad de arcos
+			while (arcos.hasNext()) {	// O(a) a = cantidad de arcos
 				Arco<T> current = arcos.next();
 				if (current.getVerticeDestino() == verticeId) { //O(1)
 					borrarArco(current.getVerticeOrigen(),verticeId);  //O(a), a = tamanio de la lista de adyacentes al vertice current
 				}
 			}
 			
+			
+//intento de mejora fallido no supe solucionar "java.util.ConcurrentModificationException"
+//razone que el error se produce cuando en el iterador anidado borro un vertice al iterador exterior se le rompe la estructura del hasnext() 
+//			borrarArcosConDestinoIgualAVertice(verticeId); //O(v*a)
+			
+			
+			
 		}
+	}
+	
+	//O(v*a) v = cantidad de vertices y a = cantidad de arcos promedio de cada vertice
+	public void borrarArcosConDestinoIgualAVertice(int verticeId) {		
+
+		Iterator <ArrayList<Arco<T>>> itTodosLosArcos = vertices.values().iterator(); 
+
+		//O(v*a) v = cantidad de vertices y a = cantidad de arcos promedio de cada vertice
+		while (itTodosLosArcos.hasNext()) {
+			ArrayList<Arco<T>> current = itTodosLosArcos.next();
+			Iterator <Arco<T>> it = current.iterator();
+			while(it.hasNext()) {
+				Arco<T> arco = it.next();
+				if (arco.getVerticeDestino() == verticeId) { 
+					borrarArco(arco.getVerticeOrigen(),verticeId); //O(a)
+				}
+			}
+			
+		}
+
 	}
 	
 
@@ -50,6 +86,7 @@ public class GrafoDirigido<T> implements Grafo<T> {
 		if (contieneVertice(verticeId1) && (contieneVertice(verticeId2))) { //O(1)
 			Arco<T> newArcoDeV1aV2 = new Arco<T>(verticeId1, verticeId2, etiqueta);
 			vertices.get(verticeId1).add(newArcoDeV1aV2); //O(1)
+			cantArcos++;
 		}
 	}
 	
@@ -63,6 +100,7 @@ public class GrafoDirigido<T> implements Grafo<T> {
 			for (int i=0; i < arcos.size(); i++) {	//O(a), a = cantidad de arcos
 				if(arcos.get(i).getVerticeDestino() == verticeDestino) {	//O(1)
 					arcos.remove(i);	//O(1)
+					cantArcos--;
 				}
 					
 			}
@@ -115,19 +153,10 @@ public class GrafoDirigido<T> implements Grafo<T> {
 		return vertices.size();
 	}
 
-	
-	//O(v*a), v = cantidad de vertices, a = promedio de los tamanios de las listas de adyacentes a cada vertice
+	//O(1)
 	@Override
 	public int cantidadArcos() {
-		Iterator<Arco<T>> itArcos = obtenerArcos(); //O(v*a), v = cantidad de vertices, a = promedio de los tamanios de las listas de adyacentes a cada vertice
-		int count = 0;
-		
-		while(itArcos.hasNext()) { //O(a), a = cantidad de arcos  
-			count++;
-			itArcos.next();
-		}
-		
-		return count;
+		return this.cantArcos;	
 	}
 
 
@@ -163,12 +192,12 @@ public class GrafoDirigido<T> implements Grafo<T> {
 		Iterator<Integer> verticesIt = obtenerVertices(); 	//O(v), v = tamanio del hashmap vertices 
 		ArrayList<Arco<T>> arcosList = new ArrayList<Arco<T>>();
 				
-		while (verticesIt.hasNext()) {		//O(v), v = tamanio del hashmap vertices 
+		while (verticesIt.hasNext()) {		//O(v*a), v = tamanio del hashmap vertices y a = promedio de los tamanios de las listas de adyacentes a cada vertice
 			int current = verticesIt.next();
 			Iterator<Arco<T>> adyacentes = obtenerArcos(current); //O(1)
 			
 			//forEachRemaining hecho con ayuda de google :)
-			adyacentes.forEachRemaining(arcosList::add);	//O(a), a = tamanio de la lista de adyacentes al vertice "current"
+			adyacentes.forEachRemaining(arcosList::add);	
 		}
 		
 		return arcosList.iterator(); //O(1)
