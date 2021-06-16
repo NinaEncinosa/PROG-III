@@ -52,7 +52,9 @@ public class Mapa {
 			colores.put(verticeId, "blanco");
 		}
 		
-		Camino encontrarCamino = encontrarCamino_dfs_visit(origen.getId(),destino.getId(),0,0);
+		int kmDelMejorCamino = Integer.MAX_VALUE; //valor discernible
+		
+		Camino encontrarCamino = encontrarCamino_dfs_visit(origen.getId(),destino.getId(),0,0,kmDelMejorCamino);
 		
 		//cuando no encuentro un camino viable setteo los km en 0
 		if (encontrarCamino.getListCiudades().size() == 0) {
@@ -64,7 +66,7 @@ public class Mapa {
 	}
 	
 	//Encontrar el camino mas corto en distancia (km) entre 2 ciudades, ATRAVESANDO como maximo una unica balanza (no tengo en cuenta las balanzas de ciudad origen y ciudad destino)
-	private Camino encontrarCamino_dfs_visit(int vertice, int verticeObjetivo , int cantBalanzas, int kmRecorridos) {
+	private Camino encontrarCamino_dfs_visit(int vertice, int verticeObjetivo , int cantBalanzas, int kmRecorridos, int kmDelMejorCamino) {
 		
 		Camino solucion = new Camino();
 		
@@ -84,13 +86,14 @@ public class Mapa {
 			solucion.setTotalDeKm(kmRecorridos);
 		}
 		
-		else {
+		else{
 			colores.put(vertice, "amarillo");
 			
 			Iterator<Integer> it = this.grafo.obtenerAdyacentes(vertice);
 			
-			//recorro todos mis adyacentes 
+			//recorro todos mis adyacentes y checkeo que no supere el maximo de balanzas 
 			while(it.hasNext() && (cantBalanzas < 2)) {
+				
 				int adyacente = it.next();
 				
 				if (colores.get(adyacente).equals("blanco")) {
@@ -98,25 +101,27 @@ public class Mapa {
 					//sumo km desde donde estoy hasta adyacente
 					kmRecorridos += grafo.obtenerArco(vertice, adyacente).getEtiqueta(); 
 					
-					//busco camino hasta destino
-					Camino subCaminosDesdeAdy = encontrarCamino_dfs_visit(adyacente,verticeObjetivo,cantBalanzas,kmRecorridos);
+					//PODA, si esta rama va recorriendo mas km de lo que es actualmente mi mejorCamino, no sigue hasta destino, corta ahi
+					if(kmRecorridos < kmDelMejorCamino) {
+						//busco camino hasta destino
+						Camino subCaminosDesdeAdy = encontrarCamino_dfs_visit(adyacente,verticeObjetivo,cantBalanzas,kmRecorridos,kmDelMejorCamino);
+						
+						//me agrego al inicio del posible camino
+						subCaminosDesdeAdy.getListCiudades().add(0,vertice);
+	
+						//me quedo con el camino mas corto hasta destino de mis adyacentes  
+						if((subCaminosDesdeAdy.getListCiudades().contains(verticeObjetivo)) && (subCaminosDesdeAdy.getTotalDeKm() < solucion.getTotalDeKm())) {
+							solucion = subCaminosDesdeAdy;
+							kmDelMejorCamino = solucion.getTotalDeKm();
+						}		
+					}
 					
 					//resto mis km para que el proximo adyacente del while no los tenga
 					kmRecorridos -= grafo.obtenerArco(vertice, adyacente).getEtiqueta(); 
-					
-					//me agrego al inicio del posible camino
-					subCaminosDesdeAdy.getListCiudades().add(0,vertice);
-
-					//me quedo con el camino mas corto hasta destino de mis adyacentes  
-					if((subCaminosDesdeAdy.getListCiudades().contains(verticeObjetivo)) && (subCaminosDesdeAdy.getTotalDeKm() < solucion.getTotalDeKm())) {
-						solucion = subCaminosDesdeAdy;
-					}
-					
 				}
 			}
 			colores.put(vertice, "blanco");
 		}
-		
 		//devuelvo desde una posicion x el camino mas optimo hasta destino
 		return solucion;
 	}

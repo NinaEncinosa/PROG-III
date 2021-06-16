@@ -8,7 +8,7 @@ public class Camino {
 	private ArrayList<Integer> listCiudades;
 	
 	public Camino () {
-		this.totalDeKm = 999999999;
+		this.totalDeKm = Integer.MAX_VALUE;
 		this.listCiudades = new ArrayList<Integer>();
 	}
 	

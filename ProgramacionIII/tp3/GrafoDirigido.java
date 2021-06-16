@@ -1,11 +1,9 @@
 package ProgramacionIII.tp3;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
-import java.util.Map.Entry;
+
 
 public class GrafoDirigido<T> implements Grafo<T> {
 	
@@ -37,24 +35,8 @@ public class GrafoDirigido<T> implements Grafo<T> {
 			int cantAdy = vertices.get(verticeId).size();
 			vertices.remove(verticeId);		//O(1)
 			cantArcos -= cantAdy;
-			
-			
-			//se podria mejorar para no tener que recorrer el total de arcos 2 veces
-			Iterator<Arco<T>> arcos = obtenerArcos(); // //O(v*a), v = cantidad de vertices, a = promedio de los tamanios de las listas de adyacentes a cada vertice
-			
-			while (arcos.hasNext()) {	// O(a) a = cantidad de arcos
-				Arco<T> current = arcos.next();
-				if (current.getVerticeDestino() == verticeId) { //O(1)
-					borrarArco(current.getVerticeOrigen(),verticeId);  //O(a), a = tamanio de la lista de adyacentes al vertice current
-				}
-			}
-			
-			
-//intento de mejora fallido no supe solucionar "java.util.ConcurrentModificationException"
-//razone que el error se produce cuando en el iterador anidado borro un vertice al iterador exterior se le rompe la estructura del hasnext() 
-//			borrarArcosConDestinoIgualAVertice(verticeId); //O(v*a)
-			
-			
+
+			borrarArcosConDestinoIgualAVertice(verticeId); //O(v*a)
 			
 		}
 	}
@@ -68,25 +50,33 @@ public class GrafoDirigido<T> implements Grafo<T> {
 		while (itTodosLosArcos.hasNext()) {
 			ArrayList<Arco<T>> current = itTodosLosArcos.next();
 			Iterator <Arco<T>> it = current.iterator();
+			
 			while(it.hasNext()) {
 				Arco<T> arco = it.next();
 				if (arco.getVerticeDestino() == verticeId) { 
-					borrarArco(arco.getVerticeOrigen(),verticeId); //O(a)
+					it.remove(); //borro el arco en el que estoy parada
+					cantArcos--;
+					//o.. opcion2: podria crear una lista con elementos a borrar y despues de iterar los borro
 				}
 			}
+			//opcion2: aca le diria al current que haga el remove de la lista a remover creada
 			
 		}
 
 	}
 	
 
-	//O(1) 
+	//O(a), a = tamanio de la lista de adyacentes al verticeId1 
 	@Override
 	public void agregarArco(int verticeId1, int verticeId2, T etiqueta) {
+		//checkeo que existan los vertices a conectar
 		if (contieneVertice(verticeId1) && (contieneVertice(verticeId2))) { //O(1)
-			Arco<T> newArcoDeV1aV2 = new Arco<T>(verticeId1, verticeId2, etiqueta);
-			vertices.get(verticeId1).add(newArcoDeV1aV2); //O(1)
-			cantArcos++;
+			//verifico que el arco a agregar no exista
+			if(!existeArco(verticeId1,verticeId2)) { //O(a), a = tamanio de la lista de adyacentes al verticeId1 
+				Arco<T> newArcoDeV1aV2 = new Arco<T>(verticeId1, verticeId2, etiqueta);
+				vertices.get(verticeId1).add(newArcoDeV1aV2); //O(1)
+				cantArcos++;
+			}
 		}
 	}
 	
@@ -167,22 +157,11 @@ public class GrafoDirigido<T> implements Grafo<T> {
 	}
 	
 	
-	//O(a), a = tamanio de la lista de adyacentes al verticeId 
+	//O(1) mediante encapsular mi iterador dentro de una clase que exclusivamente recorre a travez de it.next().getVerticeDestino() reduzco la complejidad
 	@Override
 	public Iterator<Integer> obtenerAdyacentes(int verticeId) {
-		ArrayList<Integer> adyacentesList = new ArrayList<Integer>();
-		
-		if(contieneVertice(verticeId)) { 	//O(1)
-			Iterator<Arco<T>> itArcos = obtenerArcos(verticeId); //O(1)
-			
-			while (itArcos.hasNext()) {	//O(a) a = tamanio de la lista de adyacentes al verticeId 
-				Arco<T> current = itArcos.next();
-				adyacentesList.add(current.getVerticeDestino());  //O(1)
-			}
-			
-		}
-		
-		return adyacentesList.iterator();
+		Iterator<Arco<T>> itInterno = vertices.get(verticeId).iterator();
+		return new IteradorAdyacentes<T>(itInterno);
 	}
 	
 	
